@@ -25,7 +25,39 @@ def recommendmovie():
 
     # joining two data frame on basis of item_id ... only those data set will be merge if item_id is found on both side of column i-e data_frame and movie_title_items
 
-    
+    if movie_title not in list(merged_data_set["title"]):
+        # check if movie title entered by user is found 
+        print(f"sorry no movie found with title {movie_title}. try again")
+        return None
+
+# storing rating of movie 
+    ratings = pd.DataFrame(merged_data_set.groupby("title")["rating"].mean())
+
+    # this will create 2 dimensional table to store rating of movie by title
+
+
+    ratings["num of ratings"] = pd.DataFrame(merged_data_set.groupby("title")["rating"].count())
+    #  store total rating of movie in 'num of ratings' columns
+
+    moviemat = merged_data_set.pivot_table(index="user_id", columns="title", values="rating")
+
+    # applying aggregate on rating column and result be retured as table 
+
+
+
+    movie_user_rating = moviemat[movie_title]
+
+    cors_movie = moviemat.corrwith(movie_user_rating)
+
+    # corrwith functoin checks computes correlation with another dataframe  between rows or columns of two DataFrame objects
+    # in this case we are  checking correlation of movie_title column and movie
+
+    similar_movies = pd.DataFrame(cors_movie, columns=["Correlation"])
+
+    similar_movies.dropna(inplace=True)
+    # Determine if rows or columns which contain missing values are  removed.
+
+    similar_movies = similar_movies.join(ratings["num of ratings"])
 
     return (
         similar_movies[similar_movies["num of ratings"] > 100]
